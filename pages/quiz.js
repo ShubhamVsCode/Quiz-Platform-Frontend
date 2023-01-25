@@ -7,8 +7,12 @@ import {
   CalendarIcon,
   ClockIcon,
 } from "@heroicons/react/24/solid";
+
+import { PencilSquareIcon } from "@heroicons/react/24/outline";
+
 import {
   createStyles,
+  Modal,
   NativeSelect,
   SegmentedControl,
   Switch,
@@ -17,6 +21,7 @@ import {
 import DateTimePicker from "react-datetime-picker/dist/entry.nostyle";
 import { DatePicker, TimeRangeInput } from "@mantine/dates";
 import { motion } from "framer-motion";
+import UpdateQuestion from "../components/UpdateQuestion";
 
 const useStyles = createStyles((theme) => ({
   root: {
@@ -61,7 +66,107 @@ const Quiz = () => {
     },
   });
 
-  const [submittedQuestions, setSubmittedQuestions] = useState([]);
+  const [submittedQuestions, setSubmittedQuestions] = useState([
+    {
+      question_text: "Question New",
+      options: [
+        {
+          _id: "63d1b52c0497ec532ee2b3d3",
+          option_text: "option1",
+          is_correct: true,
+          option_image: "",
+          __v: 0,
+        },
+        {
+          _id: "63d1b52c0497ec532ee2b3d5",
+          option_text: "option2",
+          is_correct: false,
+          option_image: "",
+          __v: 0,
+        },
+        {
+          _id: "63d1b52c0497ec532ee2b3d7",
+          option_text: "option3",
+          is_correct: false,
+          option_image: "",
+          __v: 0,
+        },
+        {
+          _id: "63d1b52c0497ec532ee2b3d9",
+          option_text: "option4",
+          is_correct: false,
+          option_image: "",
+          __v: 0,
+        },
+      ],
+      solution: {
+        solution_text: "5-8 = 3",
+        solution_image: "",
+        solution_document: "",
+        solution_video: "",
+        _id: "63d1b52c0497ec532ee2b3dc",
+      },
+      question_image: "",
+      question_difficulty: 5,
+      _id: "63d1b52c0497ec532ee2b3db",
+      __v: 0,
+    },
+  ]);
+  const [selectedQuestionForUpdate, setSelectedQuestionForUpdate] = useState({
+    question_text: "Question New",
+    options: [
+      {
+        _id: "63d1b52c0497ec532ee2b3d3",
+        option_text: "option1",
+        is_correct: true,
+        option_image: "",
+        __v: 0,
+      },
+      {
+        _id: "63d1b52c0497ec532ee2b3d5",
+        option_text: "option2",
+        is_correct: false,
+        option_image: "",
+        __v: 0,
+      },
+      {
+        _id: "63d1b52c0497ec532ee2b3d7",
+        option_text: "option3",
+        is_correct: false,
+        option_image: "",
+        __v: 0,
+      },
+      {
+        _id: "63d1b52c0497ec532ee2b3d9",
+        option_text: "option4",
+        is_correct: false,
+        option_image: "",
+        __v: 0,
+      },
+    ],
+    solution: {
+      solution_text: "5-8 = 3",
+      solution_image: "",
+      solution_document: "",
+      solution_video: "",
+      _id: "63d1b52c0497ec532ee2b3dc",
+    },
+    question_image: "",
+    question_difficulty: 5,
+    _id: "63d1b52c0497ec532ee2b3db",
+    __v: 0,
+  });
+
+  const [openUpdateModal, setOpenUpdateModal] = useState(false);
+
+  useEffect(() => {
+    if (selectedQuestionForUpdate?._id) {
+      setOpenUpdateModal(true);
+    } else {
+      setOpenUpdateModal(false);
+    }
+  }, [selectedQuestionForUpdate]);
+
   useEffect(() => {
     if (submittedQuestions.length > 0) {
       const questionIds = submittedQuestions.map((ques) => ques?._id);
@@ -127,13 +232,35 @@ const Quiz = () => {
               Questions
               {/* <span className="text-red-500 text-xl">*</span> */}
             </label>
-            {submittedQuestions.length === 0 ? (
+            {submittedQuestions.length == 0 ? (
               <p>No Question Saved</p>
             ) : (
-              submittedQuestions.map((ques) => (
-                <div>{HTMLParser(ques.question_text.substring(0, 100))}</div>
-              ))
+              submittedQuestions.map((ques) => {
+                return (
+                  <div className="flex justify-between bg-slate-100 py-2 px-2 rounded">
+                    <div className="">
+                      {HTMLParser(ques?.question_text?.substring(0, 100))}
+                    </div>
+                    <button onClick={() => setSelectedQuestionForUpdate(ques)}>
+                      <PencilSquareIcon className="w-6 hover:text-green-600 duration-300 items-center" />
+                    </button>
+                  </div>
+                );
+              })
             )}
+
+            <Modal
+              title={<p className="font-bold">Update Question</p>}
+              size="calc(100vw - 400px)"
+              overlayOpacity={0.55}
+              overlayBlur={3}
+              opened={openUpdateModal}
+              centered
+              padding={"6px 16px"}
+              onClose={() => setSelectedQuestionForUpdate({})}
+            >
+              <UpdateQuestion questionData={selectedQuestionForUpdate} />
+            </Modal>
             {/* Button Add a Question */}
           </div>
 
