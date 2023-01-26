@@ -3,10 +3,41 @@ import { BASE_URL } from "../../utils/constant";
 
 export const allApi = createApi({
   reducerPath: "allApi",
-  baseQuery: fetchBaseQuery({ baseUrl: BASE_URL }),
+  baseQuery: fetchBaseQuery({
+    baseUrl: BASE_URL,
+    prepareHeaders: (headers, { getState }) => {
+      const token = getState().auth?.token;
+      console.log("State", getState());
+
+      if (token) {
+        headers.set("authorization", `Bearer ${token}`);
+      }
+      return headers;
+    },
+  }),
   endpoints: (builder) => ({
     getProfile: builder.mutation({
       query: () => `/auth`,
+    }),
+    login: builder.mutation({
+      query: (data) => ({
+        url: "/auth/login",
+        body: data,
+        method: "POST",
+      }),
+    }),
+    signup: builder.mutation({
+      query: (data) => ({
+        url: "/auth/signup",
+        body: data,
+        method: "POST",
+      }),
+    }),
+    logout: builder.mutation({
+      query: () => ({
+        url: "/auth/logout",
+        method: "GET",
+      }),
     }),
 
     createQuestion: builder.mutation({
@@ -16,7 +47,40 @@ export const allApi = createApi({
         method: "POST",
       }),
     }),
+    updateQuestion: builder.mutation({
+      query: (data) => ({
+        url: `/question/${data?._id}`,
+        body: data,
+        method: "PUT",
+      }),
+    }),
+
+    updateOption: builder.mutation({
+      query: (data) => ({
+        url: `/option/${data?._id}`,
+        body: data,
+        method: "PUT",
+      }),
+    }),
+
+    createQuiz: builder.mutation({
+      query: (data) => ({
+        url: "/quiz",
+        body: data,
+        method: "POST",
+      }),
+    }),
   }),
 });
 
-export const { useGetProfileMutation, useCreateQuestionMutation } = allApi;
+export const {
+  useGetProfileMutation,
+  useLoginMutation,
+  useLogoutMutation,
+  useSignupMutation,
+  useCreateQuestionMutation,
+  useUpdateQuestionMutation,
+
+  useUpdateOptionMutation,
+  useCreateQuizMutation,
+} = allApi;

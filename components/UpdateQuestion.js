@@ -5,7 +5,10 @@ import { ArchiveBoxXMarkIcon } from "@heroicons/react/24/solid";
 
 import { useEffect, useState } from "react";
 import TextBox from "./TextBox";
-import { useCreateQuestionMutation } from "../redux/services/quiz.services";
+import {
+  useUpdateQuestionMutation,
+  useUpdateOptionMutation,
+} from "../redux/services/quiz.services";
 import { DndListHandle } from "./DragAndDrop";
 
 const UpdateQuestion = ({
@@ -13,11 +16,22 @@ const UpdateQuestion = ({
   setSubmittedQuestions,
   questionData: oldQuestionData,
 }) => {
-  const [createQuestionFunction, createQuestionResponse] =
-    useCreateQuestionMutation();
+  const [updateQuestionFunction, updateQuestionResponse] =
+    useUpdateQuestionMutation();
 
   const optionName = ["A", "B", "C", "D", "E", "F"];
-  const [options, setOptions] = useState(oldQuestionData?.options);
+  const [options, setOptions] = useState([]);
+  console.log("options", options);
+
+  useEffect(() => {
+    setOptions(questionData?.options);
+  }, []);
+
+  useEffect(() => {
+    setQuestionData((prev) => {
+      return { ...prev, options: options };
+    });
+  }, [options]);
 
   const deleteOption = (i) => {
     if (options.length > 2) {
@@ -33,6 +47,7 @@ const UpdateQuestion = ({
   const [questionData, setQuestionData] = useState({
     ...oldQuestionData,
   });
+  console.log("Question data", questionData);
 
   const handleChange = (e, i) => {
     setOptions((prev) => {
@@ -72,16 +87,18 @@ const UpdateQuestion = ({
         autoClose: 2000,
       });
 
-    createQuestionFunction(questionData);
+    updateQuestionFunction(questionData);
   };
 
-  console.log("Create Question Response", createQuestionResponse.data);
+  console.log("Update Question Response", updateQuestionResponse.data);
 
   const [makeReadOnly, setMakeReadOnly] = useState(false);
-  const [addSolution, setAddSolution] = useState(false);
+  const [addSolution, setAddSolution] = useState(
+    questionData?.solution?.solution_text ? true : false
+  );
 
   useEffect(() => {
-    if (createQuestionResponse.isLoading) {
+    if (updateQuestionResponse.isLoading) {
       showNotification({
         id: "load-data",
         loading: true,
@@ -92,44 +109,51 @@ const UpdateQuestion = ({
       });
     }
 
-    if (createQuestionResponse.isSuccess) {
+    if (updateQuestionResponse.isSuccess) {
       // setMakeReadOnly(true);
       updateNotification({
         id: "load-data",
         color: "teal",
         title: "Success!",
-        message: "Question successfully submitted",
+        message: "Question successfully updated",
         icon: <CheckIcon height={10} />,
         autoClose: 2000,
       });
-      setSubmittedQuestions((prev) => [...prev, createQuestionResponse.data]);
-      setOptions([
-        {
-          option_text: "",
-          is_correct: false,
-        },
-        {
-          option_text: "",
-          is_correct: false,
-        },
-        {
-          option_text: "",
-          is_correct: false,
-        },
-        {
-          option_text: "",
-          is_correct: false,
-        },
-      ]);
-      setQuestionData({
-        question_text: "",
-        options: options,
-        solution: {},
-        question_image: "",
-        question_difficulty: 5,
+      setSubmittedQuestions((prev) => {
+        const foundQuestion = prev.findIndex(
+          (ques) => ques._id === questionData?._id
+        );
+        prev.splice(foundQuestion, 1, updateQuestionResponse.data);
+
+        return [...prev];
       });
+      // setOptions([
+      //   {
+      //     option_text: "",
+      //     is_correct: false,
+      //   },
+      //   {
+      //     option_text: "",
+      //     is_correct: false,
+      //   },
+      //   {
+      //     option_text: "",
+      //     is_correct: false,
+      //   },
+      //   {
+      //     option_text: "",
+      //     is_correct: false,
+      //   },
+      // ]);
+      // setQuestionData({
+      //   question_text: "",
+      //   options: options,
+      //   solution: {},
+      //   question_image: "",
+      //   question_difficulty: 5,
+      // });
     }
-  }, [createQuestionResponse]);
+  }, [updateQuestionResponse]);
 
   const [questionErrorMessage, optionErrorMessage] = [
     "Question is a required field!",
@@ -189,7 +213,7 @@ const UpdateQuestion = ({
         <div className="flex flex-col gap-3">
           {options.map((opt, i) => {
             return (
-              <div>
+              <div key={opt?._id || i}>
                 <div className="flex justify-between">
                   <p
                     className={`${
@@ -215,8 +239,11 @@ const UpdateQuestion = ({
                     value={options[i].option_text}
                     onChange={(value) =>
                       setOptions((prev) => {
-                        prev[i].option_text = value;
-                        return [...prev];
+                        const newArray = [...prev];
+                        const newObject = { ...newArray[i] };
+                        newObject.option_text = value;
+                        newArray[i] = newObject;
+                        return [...newArray];
                       })
                     }
                     controls={[
@@ -239,9 +266,11 @@ const UpdateQuestion = ({
           })}
           <div className="grid grid-cols-4 gap-4">
             <div>
-              <p className="text-center font-semibold mb-1">Difficulty</p>
+              <p className="text-center font-semibold mb-1">
+                Difficulty: {questionData?.question_difficulty}
+              </p>
               <Slider
-                defaultValue={5}
+                defaultValue={questionData?.question_difficulty}
                 step={1}
                 min={1}
                 max={10}

@@ -5,6 +5,7 @@ import { showNotification, updateNotification } from "@mantine/notifications";
 import Head from "next/head";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import HomePage from "../components/HomePage";
 import Navbar from "../components/Navbar";
 import NewQuestion from "../components/NewQuestion";
 import TextBox from "../components/TextBox";
@@ -23,6 +24,7 @@ export default function Home() {
       </Head>
 
       {/* <NewQuestion /> */}
+      <HomePage />
     </div>
   );
 }

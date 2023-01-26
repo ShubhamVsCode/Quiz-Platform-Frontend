@@ -8,9 +8,11 @@ import {
   ClockIcon,
 } from "@heroicons/react/24/solid";
 
-import { PencilSquareIcon } from "@heroicons/react/24/outline";
+import { PencilSquareIcon, XMarkIcon } from "@heroicons/react/24/outline";
 
 import {
+  Button,
+  CheckIcon,
   createStyles,
   Modal,
   NativeSelect,
@@ -22,6 +24,11 @@ import DateTimePicker from "react-datetime-picker/dist/entry.nostyle";
 import { DatePicker, TimeRangeInput } from "@mantine/dates";
 import { motion } from "framer-motion";
 import UpdateQuestion from "../components/UpdateQuestion";
+import { useSelector } from "react-redux";
+import { authState } from "../redux/services/auth.services";
+import { useRouter } from "next/router";
+import { useCreateQuizMutation } from "../redux/services/quiz.services";
+import { showNotification, updateNotification } from "@mantine/notifications";
 
 const useStyles = createStyles((theme) => ({
   root: {
@@ -52,6 +59,14 @@ const variants = {
 };
 
 const Quiz = () => {
+  const auth = useSelector(authState);
+  const router = useRouter();
+  // useEffect(() => {
+  //   if (!auth?.success) {
+  //     router.push("/login");
+  //   }
+  // }, [auth]);
+
   const [value, onChange] = useState(new Date());
 
   const [quizData, setQuizData] = useState({
@@ -60,102 +75,19 @@ const Quiz = () => {
     quiz_image: "",
     quiz_difficulty: "MEDIUM",
     quiz_type: "SINGLE_CORRECT",
+    is_published: false,
     is_live: false,
     quiz_date: {
       start: value,
     },
   });
 
-  const [submittedQuestions, setSubmittedQuestions] = useState([
-    {
-      question_text: "Question New",
-      options: [
-        {
-          _id: "63d1b52c0497ec532ee2b3d3",
-          option_text: "option1",
-          is_correct: true,
-          option_image: "",
-          __v: 0,
-        },
-        {
-          _id: "63d1b52c0497ec532ee2b3d5",
-          option_text: "option2",
-          is_correct: false,
-          option_image: "",
-          __v: 0,
-        },
-        {
-          _id: "63d1b52c0497ec532ee2b3d7",
-          option_text: "option3",
-          is_correct: false,
-          option_image: "",
-          __v: 0,
-        },
-        {
-          _id: "63d1b52c0497ec532ee2b3d9",
-          option_text: "option4",
-          is_correct: false,
-          option_image: "",
-          __v: 0,
-        },
-      ],
-      solution: {
-        solution_text: "5-8 = 3",
-        solution_image: "",
-        solution_document: "",
-        solution_video: "",
-        _id: "63d1b52c0497ec532ee2b3dc",
-      },
-      question_image: "",
-      question_difficulty: 5,
-      _id: "63d1b52c0497ec532ee2b3db",
-      __v: 0,
-    },
-  ]);
-  const [selectedQuestionForUpdate, setSelectedQuestionForUpdate] = useState({
-    question_text: "Question New",
-    options: [
-      {
-        _id: "63d1b52c0497ec532ee2b3d3",
-        option_text: "option1",
-        is_correct: true,
-        option_image: "",
-        __v: 0,
-      },
-      {
-        _id: "63d1b52c0497ec532ee2b3d5",
-        option_text: "option2",
-        is_correct: false,
-        option_image: "",
-        __v: 0,
-      },
-      {
-        _id: "63d1b52c0497ec532ee2b3d7",
-        option_text: "option3",
-        is_correct: false,
-        option_image: "",
-        __v: 0,
-      },
-      {
-        _id: "63d1b52c0497ec532ee2b3d9",
-        option_text: "option4",
-        is_correct: false,
-        option_image: "",
-        __v: 0,
-      },
-    ],
-    solution: {
-      solution_text: "5-8 = 3",
-      solution_image: "",
-      solution_document: "",
-      solution_video: "",
-      _id: "63d1b52c0497ec532ee2b3dc",
-    },
-    question_image: "",
-    question_difficulty: 5,
-    _id: "63d1b52c0497ec532ee2b3db",
-    __v: 0,
-  });
+  console.log("quizData", quizData);
+
+  const [submittedQuestions, setSubmittedQuestions] = useState([]);
+  const [selectedQuestionForUpdate, setSelectedQuestionForUpdate] = useState(
+    {}
+  );
 
   const [openUpdateModal, setOpenUpdateModal] = useState(false);
 
@@ -176,7 +108,7 @@ const Quiz = () => {
 
   const { classes } = useStyles();
 
-  const [openSidebar, setOpenSidebar] = useState(false);
+  const [openSidebar, setOpenSidebar] = useState(true);
   const open = () => setOpenSidebar(true);
   const close = () => setOpenSidebar(false);
 
@@ -199,6 +131,69 @@ const Quiz = () => {
     />
   );
 
+  const [createQuizFunction, createQuizResponse] = useCreateQuizMutation();
+
+  const handleSubmit = (isPublished) => {
+    createQuizFunction({
+      ...quizData,
+      is_published: isPublished,
+    });
+  };
+
+  useEffect(() => {
+    if (createQuizResponse.isLoading) {
+      showNotification({
+        id: "load-data",
+        loading: true,
+        title: "Loading...",
+        message: "Submitting Quiz...",
+        autoClose: false,
+        disallowClose: true,
+      });
+    }
+
+    if (createQuizResponse.isSuccess) {
+      // setMakeReadOnly(true);
+      updateNotification({
+        id: "load-data",
+        color: "teal",
+        title: "Success!",
+        message: "Quiz successfully created",
+        icon: <CheckIcon height={10} />,
+        autoClose: 500,
+        w: "300px",
+        left: "120px",
+      });
+      setSubmittedQuestions([]);
+      setQuizData({
+        quiz_name: "",
+        questions: [],
+        quiz_image: "",
+        quiz_difficulty: "MEDIUM",
+        quiz_type: "SINGLE_CORRECT",
+        is_published: false,
+        is_live: false,
+        quiz_date: {
+          start: value,
+        },
+      });
+    }
+    if (createQuizResponse.isError) {
+      updateNotification({
+        id: "load-data",
+        color: "red",
+        title: "Failed!",
+        message: createQuizResponse.error?.message
+          ? createQuizResponse.error?.message
+          : createQuizResponse.error?.data?.message,
+        icon: <XMarkIcon className="p-1" />,
+        autoClose: 500,
+        w: "300px",
+        left: "120px",
+      });
+    }
+  }, [createQuizResponse]);
+
   return (
     <div className="">
       <div className="grid grid-cols-6">
@@ -212,7 +207,7 @@ const Quiz = () => {
           }}
           animate={openSidebar ? "open" : "closed"}
           variants={variants}
-          className="col-span-1 px-4 space-y-5 py-6 border-r"
+          className="h-[calc(100vh-81px)] relative col-span-1 px-4 space-y-5 py-6 border-r"
         >
           <div className="flex flex-col">
             <label htmlFor="quiz_name" className="mb-2 text-xl font-bold">
@@ -223,7 +218,14 @@ const Quiz = () => {
               type="text"
               name="quiz_name"
               id="quiz_name"
+              value={quizData.quiz_name}
               className="rounded px-5 py-3 border border-black/20"
+              onChange={(e) =>
+                setQuizData((prev) => ({
+                  ...prev,
+                  quiz_name: e.target.value,
+                }))
+              }
             />
           </div>
 
@@ -235,9 +237,12 @@ const Quiz = () => {
             {submittedQuestions.length == 0 ? (
               <p>No Question Saved</p>
             ) : (
-              submittedQuestions.map((ques) => {
+              submittedQuestions.map((ques, i) => {
                 return (
-                  <div className="flex justify-between bg-slate-100 py-2 px-2 rounded">
+                  <div
+                    key={ques._id || i}
+                    className="flex justify-between bg-slate-100 hover:bg-slate-200 duration-300 py-2 px-2 mb-1 rounded"
+                  >
                     <div className="">
                       {HTMLParser(ques?.question_text?.substring(0, 100))}
                     </div>
@@ -259,7 +264,10 @@ const Quiz = () => {
               padding={"6px 16px"}
               onClose={() => setSelectedQuestionForUpdate({})}
             >
-              <UpdateQuestion questionData={selectedQuestionForUpdate} />
+              <UpdateQuestion
+                setSubmittedQuestions={setSubmittedQuestions}
+                questionData={selectedQuestionForUpdate}
+              />
             </Modal>
             {/* Button Add a Question */}
           </div>
@@ -285,6 +293,7 @@ const Quiz = () => {
               {/* <span className="text-red-500 text-xl">*</span> */}
               <Switch
                 label="Schedule Quiz"
+                value={quizData.is_live}
                 onChange={(e) => {
                   setQuizData((prev) => ({
                     ...prev,
@@ -316,6 +325,19 @@ const Quiz = () => {
                 />
               </>
             )}
+          </div>
+
+          <div className="absolute bottom-5 flex gap-2">
+            <Button onClick={() => handleSubmit(true)} className="bg-blue-500">
+              Create Quiz
+            </Button>
+            <Button
+              onClick={() => handleSubmit(false)}
+              variant="outline"
+              className=""
+            >
+              Save for later
+            </Button>
           </div>
         </motion.div>
 

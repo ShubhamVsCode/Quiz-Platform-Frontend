@@ -92,7 +92,7 @@ const NewQuestion = ({ submittedQuestions, setSubmittedQuestions }) => {
     createQuestionFunction(questionData);
   };
 
-  console.log("Create Question Response", createQuestionResponse.data);
+  // console.log("Create Question Response", createQuestionResponse.data);
 
   const [makeReadOnly, setMakeReadOnly] = useState(false);
   const [addSolution, setAddSolution] = useState(false);
@@ -206,7 +206,7 @@ const NewQuestion = ({ submittedQuestions, setSubmittedQuestions }) => {
         <div className="flex flex-col gap-3">
           {options.map((opt, i) => {
             return (
-              <div>
+              <div key={i}>
                 <div className="flex justify-between">
                   <p
                     className={`${
@@ -256,9 +256,11 @@ const NewQuestion = ({ submittedQuestions, setSubmittedQuestions }) => {
           })}
           <div className="grid grid-cols-4 gap-4">
             <div>
-              <p className="text-center font-semibold mb-1">Difficulty</p>
+              <p className="text-center font-semibold mb-1">
+                Difficulty: {questionData.question_difficulty}
+              </p>
               <Slider
-                defaultValue={5}
+                value={questionData.question_difficulty}
                 step={1}
                 min={1}
                 max={10}
@@ -307,7 +309,7 @@ const NewQuestion = ({ submittedQuestions, setSubmittedQuestions }) => {
               onClick={handleSubmit}
               className="bg-green-400 text-white duration-200 hover:bg-green-600 rounded px-5 py-2"
             >
-              Submit
+              Save
             </button>
           </div>
         </div>

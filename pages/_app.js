@@ -10,6 +10,7 @@ function MyApp({ Component, pageProps }) {
     <MantineProvider withNormalizeCSS withGlobalStyles>
       <NotificationsProvider position="top-right">
         <Provider store={store}>
+          {/* store.getState().auth.success */}
           <Navbar />
           <Component {...pageProps} />
         </Provider>
