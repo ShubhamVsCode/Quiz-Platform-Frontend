@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import HTMLParser from "html-react-parser";
-import NewQuestion from "../components/NewQuestion";
+import NewQuestion from "../../../components/NewQuestion";
 import {
   Bars3BottomLeftIcon,
   CalculatorIcon,
@@ -25,11 +25,11 @@ import { DatePicker, TimeInput, TimeRangeInput } from "@mantine/dates";
 import dayjs from "dayjs";
 
 import { motion } from "framer-motion";
-import UpdateQuestion from "../components/UpdateQuestion";
+import UpdateQuestion from "../../../components/UpdateQuestion";
 import { useSelector } from "react-redux";
-import { authState } from "../redux/services/auth.services";
+import { authState } from "../../../redux/services/auth.services";
 import { useRouter } from "next/router";
-import { useCreateQuizMutation } from "../redux/services/quiz.services";
+import { useCreateQuizMutation } from "../../../redux/services/quiz.services";
 import { showNotification, updateNotification } from "@mantine/notifications";
 
 const useStyles = createStyles((theme) => ({
@@ -63,19 +63,12 @@ const variants = {
 const Quiz = () => {
   const auth = useSelector(authState);
   const router = useRouter();
-  // useEffect(() => {
-  //   if (!auth?.success) {
-  //     router.push("/login");
-  //   }
-  // }, [auth]);
 
   const [value, onChange] = useState(new Date());
   const [quizDate, setQuizDate] = useState(new Date());
   const [startTime, setStartTime] = useState(new Date());
   const [duration, setDuration] = useState(30);
   const [selectedTimeScale, setSelectedTimeScale] = useState("m");
-  // console.log("quizDate", dayjs(quizDate).format("DD-MM-YYYY"));
-  // console.log("startTime", dayjs(startTime).add(3, "m").format("HH:mm"));
 
   const [quizData, setQuizData] = useState({
     quiz_name: "",
@@ -118,8 +111,6 @@ const Quiz = () => {
   const { classes } = useStyles();
 
   const [openSidebar, setOpenSidebar] = useState(true);
-  const open = () => setOpenSidebar(true);
-  const close = () => setOpenSidebar(false);
 
   const data = [
     { value: "m", label: "Minute" },
@@ -313,6 +304,7 @@ const Quiz = () => {
               radius="xl"
               size="md"
               data={["EASY", "MEDIUM", "HARD"]}
+              defaultValue={"MEDIUM"}
               classNames={classes}
               onChange={(val) =>
                 setQuizData((prev) => ({ ...prev, quiz_difficulty: val }))

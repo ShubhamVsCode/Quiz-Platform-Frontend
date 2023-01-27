@@ -7,7 +7,7 @@ export const allApi = createApi({
     baseUrl: BASE_URL,
     prepareHeaders: (headers, { getState }) => {
       const token = getState().auth?.token;
-      console.log("State", getState());
+      // console.log("State", getState());
 
       if (token) {
         headers.set("authorization", `Bearer ${token}`);
@@ -37,6 +37,12 @@ export const allApi = createApi({
       query: () => ({
         url: "/auth/logout",
         method: "GET",
+      }),
+    }),
+
+    getUpcomingQuizzes: builder.query({
+      query: () => ({
+        url: "/quiz/upcoming",
       }),
     }),
 
@@ -78,6 +84,9 @@ export const {
   useLoginMutation,
   useLogoutMutation,
   useSignupMutation,
+
+  useGetUpcomingQuizzesQuery,
+
   useCreateQuestionMutation,
   useUpdateQuestionMutation,
 

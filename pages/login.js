@@ -86,7 +86,7 @@ export default function AuthenticationForm(props) {
         left: "120px",
       });
 
-      console.log(loginResponse.error);
+      // console.log(loginResponse.error);
     }
 
     if (loginResponse.isSuccess) {
@@ -103,17 +103,24 @@ export default function AuthenticationForm(props) {
       });
 
       Cookies.set("authToken", loginResponse?.data?.token);
+      Cookies.set("auth", JSON.stringify(loginResponse?.data));
+
+      // localStorage.setItem("auth", loginResponse.data);
 
       dispatch(setUser(loginResponse.data));
-      localStorage.setItem("auth", loginResponse.data);
-
       router.push("/");
     }
 
-    console.log("Login Successfully", loginResponse.data);
+    // console.log("Login Successfully", loginResponse.data);
   }, [loginResponse]);
 
   const router = useRouter();
+
+  useEffect(() => {
+    if (Cookies.get("auth")) {
+      dispatch(setUser(JSON.parse(Cookies.get("auth"))));
+    }
+  }, []);
 
   return (
     <Paper
@@ -138,7 +145,7 @@ export default function AuthenticationForm(props) {
 
       <form
         onSubmit={form.onSubmit((data) => {
-          console.log("Submitting Data", data);
+          // console.log("Submitting Data", data);
           if (type === "register") {
             signupFunction(data);
           } else {

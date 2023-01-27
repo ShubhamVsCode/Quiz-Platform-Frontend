@@ -5,7 +5,11 @@ import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
-import { authState, logoutUser } from "../redux/services/auth.services";
+import {
+  authState,
+  logoutUser,
+  setUser,
+} from "../redux/services/auth.services";
 import {
   useGetProfileMutation,
   useLoginMutation,
@@ -20,7 +24,7 @@ const Navbar = () => {
   const authentication = useSelector(authState);
   const [auth, setAuth] = useState(authentication);
 
-  console.log(auth);
+  // console.log(auth);
 
   useEffect(() => {
     setAuth(authentication);
@@ -28,7 +32,14 @@ const Navbar = () => {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      // setAuth(JSON?.parse(localStorage.getItem("auth")));
+      setAuth(JSON.parse(Cookies?.get("auth") || "{}"));
+      // setAuth(JSON.parse(localStorage?.getItem("auth")));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (Cookies.get("auth")) {
+      dispatch(setUser(JSON.parse(Cookies.get("auth"))));
     }
   }, []);
 
@@ -43,7 +54,7 @@ const Navbar = () => {
       <div className="hidden sm:flex items-center gap-5">
         <Link href="/">Home</Link>
         <div>About</div>
-        <Link href="/quiz">Quiz</Link>
+        <Link href="/admin/quiz">Quiz</Link>
         <div>Library</div>
       </div>
 
@@ -65,6 +76,7 @@ const Navbar = () => {
           <button
             onClick={() => {
               Cookies.remove("authToken");
+              Cookies.remove("auth");
               localStorage.clear();
               dispatch(logoutUser());
               router.push("/");

@@ -35,9 +35,9 @@ const NewQuestion = ({ submittedQuestions, setSubmittedQuestions }) => {
   const deleteOption = (i) => {
     if (options.length > 2) {
       setOptions((prev) => {
-        console.log(i);
+        // console.log(i);
         const newArray = prev.filter((opt, index) => index != i);
-        console.log(newArray);
+        // console.log(newArray);
         return newArray;
       });
     }
@@ -60,7 +60,7 @@ const NewQuestion = ({ submittedQuestions, setSubmittedQuestions }) => {
   };
 
   const handleSubmit = (e) => {
-    console.log("Question Data", questionData);
+    // console.log("Question Data", questionData);
 
     if (!questionData.question_text)
       return showNotification({
@@ -265,7 +265,7 @@ const NewQuestion = ({ submittedQuestions, setSubmittedQuestions }) => {
                 min={1}
                 max={10}
                 onChange={(value) => {
-                  console.log(value);
+                  // console.log(value);
                   setQuestionData((prev) => ({
                     ...prev,
                     question_difficulty: value,

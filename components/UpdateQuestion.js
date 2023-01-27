@@ -21,7 +21,7 @@ const UpdateQuestion = ({
 
   const optionName = ["A", "B", "C", "D", "E", "F"];
   const [options, setOptions] = useState([]);
-  console.log("options", options);
+  // console.log("options", options);
 
   useEffect(() => {
     setOptions(questionData?.options);
@@ -36,9 +36,9 @@ const UpdateQuestion = ({
   const deleteOption = (i) => {
     if (options.length > 2) {
       setOptions((prev) => {
-        console.log(i);
+        // console.log(i);
         const newArray = prev.filter((opt, index) => index != i);
-        console.log(newArray);
+        // console.log(newArray);
         return newArray;
       });
     }
@@ -47,18 +47,21 @@ const UpdateQuestion = ({
   const [questionData, setQuestionData] = useState({
     ...oldQuestionData,
   });
-  console.log("Question data", questionData);
+  // console.log("Question data", questionData);
 
   const handleChange = (e, i) => {
     setOptions((prev) => {
-      prev.map((o) => (o.is_correct = false));
-      prev[i].is_correct = e.target.checked;
-      return [...prev];
+      const newArray = [...prev];
+      const newObject = { ...newArray[i] };
+      newArray.map((x) => (x.is_correct = false));
+      newObject.is_correct = e.target.checked;
+      newArray[i] = newObject;
+      return [...newArray];
     });
   };
 
   const handleSubmit = (e) => {
-    console.log("Question Data", questionData);
+    // console.log("Question Data", questionData);
 
     if (!questionData.question_text)
       return showNotification({
@@ -90,7 +93,7 @@ const UpdateQuestion = ({
     updateQuestionFunction(questionData);
   };
 
-  console.log("Update Question Response", updateQuestionResponse.data);
+  // console.log("Update Question Response", updateQuestionResponse.data);
 
   const [makeReadOnly, setMakeReadOnly] = useState(false);
   const [addSolution, setAddSolution] = useState(
@@ -275,7 +278,7 @@ const UpdateQuestion = ({
                 min={1}
                 max={10}
                 onChange={(value) => {
-                  console.log(value);
+                  // console.log(value);
                   setQuestionData((prev) => ({
                     ...prev,
                     question_difficulty: value,

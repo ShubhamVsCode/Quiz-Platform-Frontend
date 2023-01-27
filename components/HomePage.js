@@ -123,7 +123,7 @@ export default function HomePage() {
         </Container>
 
         <div className={classes.controls}>
-          <Link href="/quiz">
+          <Link href="/admin/quiz/create">
             <Button className={`${classes.control} bg-blue-500`} size="lg">
               Create Quiz
             </Button>
