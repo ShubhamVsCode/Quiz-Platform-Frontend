@@ -17,10 +17,20 @@ const Navbar = () => {
   const dispatch = useDispatch();
   const [logoutFunction, logoutResponse] = useLogoutMutation();
 
-  const auth = useSelector(authState);
+  const authentication = useSelector(authState);
+  const [auth, setAuth] = useState(authentication);
+
   console.log(auth);
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    setAuth(authentication);
+  }, [authentication]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      // setAuth(JSON?.parse(localStorage.getItem("auth")));
+    }
+  }, []);
 
   return (
     <nav className="px-2 sm:px-5 md:px-12 xl:px-20 2xl:px-32 py-5 bg-slate-50 border-b border-black/20 flex justify-between items-center">
@@ -55,6 +65,7 @@ const Navbar = () => {
           <button
             onClick={() => {
               Cookies.remove("authToken");
+              localStorage.clear();
               dispatch(logoutUser());
               router.push("/");
             }}

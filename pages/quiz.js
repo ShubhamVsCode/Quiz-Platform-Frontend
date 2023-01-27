@@ -21,7 +21,9 @@ import {
   TextInput,
 } from "@mantine/core";
 import DateTimePicker from "react-datetime-picker/dist/entry.nostyle";
-import { DatePicker, TimeRangeInput } from "@mantine/dates";
+import { DatePicker, TimeInput, TimeRangeInput } from "@mantine/dates";
+import dayjs from "dayjs";
+
 import { motion } from "framer-motion";
 import UpdateQuestion from "../components/UpdateQuestion";
 import { useSelector } from "react-redux";
@@ -68,6 +70,12 @@ const Quiz = () => {
   // }, [auth]);
 
   const [value, onChange] = useState(new Date());
+  const [quizDate, setQuizDate] = useState(new Date());
+  const [startTime, setStartTime] = useState(new Date());
+  const [duration, setDuration] = useState(30);
+  const [selectedTimeScale, setSelectedTimeScale] = useState("m");
+  // console.log("quizDate", dayjs(quizDate).format("DD-MM-YYYY"));
+  // console.log("startTime", dayjs(startTime).add(3, "m").format("HH:mm"));
 
   const [quizData, setQuizData] = useState({
     quiz_name: "",
@@ -79,6 +87,7 @@ const Quiz = () => {
     is_live: false,
     quiz_date: {
       start: value,
+      end: "",
     },
   });
 
@@ -113,9 +122,9 @@ const Quiz = () => {
   const close = () => setOpenSidebar(false);
 
   const data = [
-    { value: "min", label: "Minutes" },
-    { value: "hr", label: "Hours" },
-    { value: "day", label: "Days" },
+    { value: "m", label: "Minute" },
+    { value: "h", label: "Hour" },
+    { value: "d", label: "Day" },
   ];
 
   const select = (
@@ -128,8 +137,31 @@ const Quiz = () => {
           borderBottomLeftRadius: 0,
         },
       }}
+      value={selectedTimeScale}
+      onChange={(e) => setSelectedTimeScale(e.target.value)}
     />
   );
+
+  useEffect(() => {
+    setQuizData((prev) => ({
+      ...prev,
+      quiz_date: {
+        ...prev.quiz_date,
+        start: dayjs(
+          `${dayjs(quizDate).format("YYYY-MM-DD")} ${dayjs(startTime).format(
+            "HH:mm"
+          )}`
+        ).format("YYYY-MM-DD HH:mm"),
+        end: dayjs(
+          `${dayjs(quizDate).format("YYYY-MM-DD")} ${dayjs(startTime).format(
+            "HH:mm"
+          )}`
+        )
+          .add(duration, selectedTimeScale)
+          .format("YYYY-MM-DD HH:mm"),
+      },
+    }));
+  }, [quizDate, selectedTimeScale, duration, startTime]);
 
   const [createQuizFunction, createQuizResponse] = useCreateQuizMutation();
 
@@ -308,13 +340,16 @@ const Quiz = () => {
                 <DatePicker
                   placeholder="Pick date"
                   label="Schedule Date"
+                  minDate={dayjs(new Date()).toDate()}
                   withAsterisk
                   icon={<CalendarIcon className="w-4" />}
+                  value={quizDate}
+                  onChange={setQuizDate}
                 />
-                <TimeRangeInput
-                  label="Timing"
-                  // value={value}
-                  // onChange={setValue}
+                <TimeInput
+                  label="Start Time"
+                  value={startTime}
+                  onChange={setStartTime}
                   clearable
                   format="12"
                   amPmPlaceholder="AM"
@@ -322,6 +357,16 @@ const Quiz = () => {
                   labelSeparator="to"
                   withAsterisk
                   icon={<ClockIcon className="w-4" />}
+                />
+                <TextInput
+                  type="number"
+                  placeholder=""
+                  label="Duration"
+                  value={duration}
+                  onChange={(e) => setDuration(e.target.value)}
+                  rightSection={select}
+                  rightSectionWidth={88}
+                  withAsterisk
                 />
               </>
             )}
@@ -359,10 +404,3 @@ export default Quiz;
 
 // Quiz Starts at:{" "}
 // <DateTimePicker onChange={onChange} value={value} />
-// <TextInput
-// type="number"
-// placeholder=""
-// label="Quiz Ends in"
-// rightSection={select}
-// rightSectionWidth={95}
-// />

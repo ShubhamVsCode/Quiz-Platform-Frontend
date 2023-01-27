@@ -23,6 +23,7 @@
     "@mantine/notifications": "^5.10.1",
     "@mantine/rte": "^5.10.1",
     "@reduxjs/toolkit": "^1.9.1",
+    "dayjs": "^1.11.7",
     "framer-motion": "^8.5.2",
     "html-react-parser": "^3.0.8",
     "js-cookie": "^3.0.1",

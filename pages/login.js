@@ -105,6 +105,7 @@ export default function AuthenticationForm(props) {
       Cookies.set("authToken", loginResponse?.data?.token);
 
       dispatch(setUser(loginResponse.data));
+      localStorage.setItem("auth", loginResponse.data);
 
       router.push("/");
     }
